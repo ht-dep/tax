@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>{{user}}</title>
+
+    <link rel="stylesheet" type="text/css" href="http://cdn.datatables.net/1.10.12/css/jquery.dataTables.css">
+    <script type="text/javascript" charset="utf8" src="http://code.jquery.com/jquery-1.10.2.min.js"></script>
+    <script type="text/javascript" charset="utf8" src="http://cdn.datatables.net/1.10.12/js/jquery.dataTables.js"></script>
+    <link rel="stylesheet" href="https://cdn.bootcss.com/bootstrap/4.0.0-beta/css/bootstrap.min.css" integrity="sha384-/Y6pD6FV/Vv2HJnA6t+vslU6fwYXjCFtcEpHbNJ0lyAFsXTsjBbfaDjzALeQsN6M"
+        crossorigin="anonymous">
+     
+
+    <style>
+        /*td {
+            text-align: center;
+        }*/
+    </style>
+</head>
+
+<body>
+    <header id="header">
+       
+
+    </header>
+    <div class="container-fluid">
+         <div class="">
+            <form action="" id="uploadForm">
+                <div>
+                    <label for="name">请上传excel文件</label>
+                </div>
+                <div class="">
+                    <input type="file" name="file" id="file" class="btn-primary">
+                    <input type="button" value="查询" id="submit" />
+                </div>
+                <div>
+                    
+                </div>
+
+            </form>
+        </div>
+        <br>
+        <div class="center" align="center">
+            <h1 class="title">{{user}}</h1>
+            <a href="http://127.0.0.1:8899/download">点击下载 </a>
+        </div>
+
+        <table id="table_rinpo" class="cell-border">
+
+        </table>
+    </div>
+    <!--<div id="sse"><a href="javascript:WebSocketTest()">运行 WebSocket</a></div>-->
+
+    <script>
+        var received_msg = [];
+        var data = [
+            {
+                "fpdm": "",
+                "fphm": "",
+                "kjfsbh_qp": "",
+                "xhfmc": "",
+                "je_qp": "",
+                "rq_qp": "",
+                // "fpyzm": "",
+                "result": ""
+            },
+        ];
+        var columns_show = [
+            { "title": "发票代码", "data": "fpdm", },
+            { "title": "发票号码", "data": "fphm" },
+            { "title": "税务登记号", "data": "kjfsbh_qp" },
+            { "title": "开票金额", "data": "je_qp", },
+            { "title": "开票日期", "data": "rq_qp" },
+            // { "title": "验证码", "data": "fpyzm" },
+            { "title": "查询结果", "data": "result" },
+        ];
+        var table = $("#table_rinpo").DataTable({
+            "autoWidth": true,
+            ordering: false,
+            data: data,
+            //        data: received_msg,
+            columns: columns_show,
+            language: {
+                "lengthMenu": "每页 _MENU_ 条",
+                "zeroRecords": "没有找到任何数据",
+                "info": "第 _PAGE_ 页 ( 总共 _PAGES_ 页 )",
+                "infoEmpty": "无数据",
+                "infoFiltered": "(从 _MAX_ 条记录过滤)",
+                'paginate': {
+                    "first": "第一页",
+                    "last": "最后一页",
+                    "next": "下一页",
+                    "previous": "上一页 "
+                },
+                "search": "检索"
+            },
+            "columnDefs": [
+                { "width": "10%", "targets": 0 },
+                { "width": "12%", "targets": 1 },
+                { "width": "12%", "targets": 2 },
+                { "width": "12%", "targets": 3 },
+                // { "width": "12%", "targets": 5 },
+                { "width": "12%", "targets": 4 },
+            ],
+            searching: false,
+            order: [[1, 'asc']],
+        });
+
+        // $("#file").on('change',doupload);
+        $("#submit").click(
+            doupload
+        )
+        function doupload() {
+
+            var formdata = new FormData($("#uploadForm")[0]);
+            console.log(formdata);
+            $.ajax({
+                type: "POST",
+                url: "http://127.0.0.1:8899/upzj",
+                contentType: false,
+                processData: false,
+                cache: false,
+                data: formdata,
+                dataType: "json",
+                success: function (message) {
+                    table
+                        .clear()
+                        .rows.add(message)
+                        .draw();
+                },
+                error: function (message) {
+                    alert("提交数据失败！");
+                }
+            });
+
+
+        }
+
+        //确认按钮点击 ,提交请求
+        $("#enter").click(function () {
+
+            $.ajax({
+                type: "POST",
+                url: "http://127.0.0.1/query",
+                contentType: "application/json; charset=utf-8",
+                data: "",
+                dataType: "json",
+                success: function (message) {
+                    table
+                        .clear()
+                        .rows.add(message)
+                        .draw();
+                },
+                error: function (message) {
+                    alert("提交数据失败！");
+                }
+            });
+
+
+        })
+    </script>
+</body>
+
+</html>
